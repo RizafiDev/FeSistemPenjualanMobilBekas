@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+
+# Disallow admin and private paths
+Disallow: /admin/
+Disallow: /api/
+Disallow: /_next/
+Disallow: /private/
+
+# Allow important pages
+Allow: /
+Allow: /mobil/
+Allow: /merek/
+Allow: /kategori/
+Allow: /kontak
+Allow: /janji-temu
+
+# Sitemap
+Sitemap: https://tokojayamotor.com/sitemap.xml
