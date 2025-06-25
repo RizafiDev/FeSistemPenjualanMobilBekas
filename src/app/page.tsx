@@ -358,7 +358,7 @@ export default function HomePage() {
             )}            {/* CTA Section */}
             <section className="py-20 bg-gradient-to-br from-blue-600 via-blue-700 to-purple-700 relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent"></div>
-                <div className="container text-center relative z-10">
+                <div className="container text-center relative z-10 mx-auto px-4 lg:px-8">
                     <div className="max-w-4xl mx-auto">
                         <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 text-white rounded-full text-sm font-medium mb-6 backdrop-blur-sm">
                             <Phone className="h-4 w-4" />
