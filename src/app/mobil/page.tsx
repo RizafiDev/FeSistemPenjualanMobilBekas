@@ -8,7 +8,7 @@ export const metadata: Metadata = getCatalogSEO();
 
 export default function MobilPage() {
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-gray-50 mt-16">
             <Suspense fallback={<CatalogSkeleton />}>
                 <CatalogPage />
             </Suspense>

@@ -35,20 +35,18 @@ export default function StockCarCard({
         car.foto_mobils?.find((foto: any) => foto.is_primary) ||
         car.foto_mobils?.[0];
 
-    const carSlug = getCarSlug(car);
-
-    return (
+    const carSlug = getCarSlug(car);    return (
         <Card
-            className={`group hover:shadow-lg transition-shadow duration-300 ${className}`}
+            className={`group hover:shadow-2xl transition-all duration-300 border-0 shadow-lg overflow-hidden bg-white hover:scale-[1.02] ${className}`}
         >
-            <div className="relative overflow-hidden rounded-t-lg">
+            <div className="relative overflow-hidden">
                 <div className="aspect-[4/3] relative">
                     {primaryPhoto ? (
                         <Image
                             src={getImageUrl(primaryPhoto.path_file)}
                             alt={`${car.nama} ${car.tahun_mulai} - ${stockCar.warna}`}
                             fill
-                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                            className="object-cover group-hover:scale-110 transition-transform duration-500"
                             sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
                         />
                     ) : (

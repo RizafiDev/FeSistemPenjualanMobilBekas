@@ -140,10 +140,8 @@ export default function CatalogPage() {
                     Temukan mobil bekas berkualitas dengan berbagai pilihan
                     merek dan kategori
                 </p>
-            </div>
-
-            <div className="flex flex-col lg:flex-row gap-8">
-                {/* Filters Sidebar */}
+            </div>            <div className="flex flex-col lg:flex-row gap-8">
+                {/* Filters Sidebar - Made Sticky */}
                 <div className="lg:w-1/4">
                     {/* Mobile Filter Toggle */}
                     <Button
@@ -155,35 +153,38 @@ export default function CatalogPage() {
                         Filter ({activeFiltersCount})
                     </Button>
 
-                    <Card
-                        className={`${
-                            showFilters ? "block" : "hidden"
-                        } lg:block`}
-                    >
-                        <CardHeader>
-                            <div className="flex items-center justify-between">
-                                <CardTitle className="text-lg">
-                                    Filter
-                                </CardTitle>
-                                {activeFiltersCount > 0 && (
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={clearFilters}
-                                    >
-                                        <X className="w-4 h-4 mr-1" />
-                                        Reset
-                                    </Button>
-                                )}
-                            </div>
-                        </CardHeader>
-                        <CardContent className="space-y-6">
+                    {/* Sticky Filter Card */}
+                    <div className="sticky top-20 z-10">
+                        <Card
+                            className={`${
+                                showFilters ? "block" : "hidden"
+                            } lg:block shadow-xl border-0 bg-white`}
+                        >
+                            <CardHeader>
+                                <div className="flex items-center justify-between">
+                                    <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                                        <Filter className="w-5 h-5 text-blue-600" />
+                                        Filter
+                                    </CardTitle>
+                                    {activeFiltersCount > 0 && (
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={clearFilters}
+                                            className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                                        >
+                                            <X className="w-4 h-4 mr-1" />
+                                            Reset
+                                        </Button>
+                                    )}
+                                </div>
+                            </CardHeader>
+                            <CardContent className="space-y-6 max-h-[calc(100vh-12rem)] overflow-y-auto custom-scrollbar">
                             {/* Search */}
                             <div>
                                 <label className="text-sm font-medium mb-2 block">
                                     Pencarian
-                                </label>
-                                <div className="relative">
+                                </label>                                <div className="relative">
                                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                                     <Input
                                         placeholder="Cari mobil..."
@@ -194,7 +195,7 @@ export default function CatalogPage() {
                                                 e.target.value
                                             )
                                         }
-                                        className="pl-10"
+                                        className="pl-10 h-12 border-2 focus:border-blue-500 rounded-xl"
                                     />
                                 </div>
                             </div>
@@ -203,14 +204,13 @@ export default function CatalogPage() {
                             <div>
                                 <label className="text-sm font-medium mb-2 block">
                                     Merek
-                                </label>
-                                <Select
+                                </label>                                <Select
                                     value={filters.brand}
                                     onValueChange={(value) =>
                                         handleFilterChange("brand", value)
                                     }
                                 >
-                                    <SelectTrigger>
+                                    <SelectTrigger className="h-12 border-2 focus:border-blue-500 rounded-xl">
                                         <SelectValue placeholder="Pilih merek" />
                                     </SelectTrigger>{" "}
                                     <SelectContent>
@@ -229,9 +229,7 @@ export default function CatalogPage() {
                                             ))}
                                     </SelectContent>
                                 </Select>
-                            </div>
-
-                            {/* Category */}
+                            </div>                            {/* Category */}
                             <div>
                                 <label className="text-sm font-medium mb-2 block">
                                     Kategori
@@ -242,7 +240,7 @@ export default function CatalogPage() {
                                         handleFilterChange("category", value)
                                     }
                                 >
-                                    <SelectTrigger>
+                                    <SelectTrigger className="h-12 border-2 focus:border-blue-500 rounded-xl">
                                         <SelectValue placeholder="Pilih kategori" />
                                     </SelectTrigger>{" "}
                                     <SelectContent>
@@ -262,9 +260,7 @@ export default function CatalogPage() {
                                             )}
                                     </SelectContent>
                                 </Select>
-                            </div>
-
-                            {/* Mobil Filter */}
+                            </div>                            {/* Mobil Filter */}
                             <div>
                                 <label className="text-sm font-medium mb-2 block">
                                     Mobil
@@ -275,7 +271,7 @@ export default function CatalogPage() {
                                         handleFilterChange("mobil", value)
                                     }
                                 >
-                                    <SelectTrigger>
+                                    <SelectTrigger className="h-12 border-2 focus:border-blue-500 rounded-xl">
                                         <SelectValue placeholder="Pilih mobil" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -293,9 +289,7 @@ export default function CatalogPage() {
                                             ))}
                                     </SelectContent>
                                 </Select>
-                            </div>
-
-                            {/* Varian Filter */}
+                            </div>                            {/* Varian Filter */}
                             <div>
                                 <label className="text-sm font-medium mb-2 block">
                                     Varian
@@ -306,7 +300,7 @@ export default function CatalogPage() {
                                         handleFilterChange("varian", value)
                                     }
                                 >
-                                    <SelectTrigger>
+                                    <SelectTrigger className="h-12 border-2 focus:border-blue-500 rounded-xl">
                                         <SelectValue placeholder="Pilih varian" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -357,9 +351,7 @@ export default function CatalogPage() {
                                     step={10000000}
                                     className="w-full"
                                 />
-                            </div>
-
-                            {/* Transmission */}
+                            </div>                            {/* Transmission */}
                             <div>
                                 <label className="text-sm font-medium mb-2 block">
                                     Transmisi
@@ -373,7 +365,7 @@ export default function CatalogPage() {
                                         )
                                     }
                                 >
-                                    <SelectTrigger>
+                                    <SelectTrigger className="h-12 border-2 focus:border-blue-500 rounded-xl">
                                         <SelectValue placeholder="Pilih transmisi" />
                                     </SelectTrigger>{" "}
                                     <SelectContent>
@@ -395,14 +387,13 @@ export default function CatalogPage() {
                             <div>
                                 <label className="text-sm font-medium mb-2 block">
                                     Bahan Bakar
-                                </label>
-                                <Select
+                                </label>                                <Select
                                     value={filters.fuelType}
                                     onValueChange={(value) =>
                                         handleFilterChange("fuelType", value)
                                     }
                                 >
-                                    <SelectTrigger>
+                                    <SelectTrigger className="h-12 border-2 focus:border-blue-500 rounded-xl">
                                         <SelectValue placeholder="Pilih bahan bakar" />
                                     </SelectTrigger>{" "}
                                     <SelectContent>
@@ -423,9 +414,7 @@ export default function CatalogPage() {
                                         </SelectItem>
                                     </SelectContent>
                                 </Select>
-                            </div>
-
-                            {/* Condition */}
+                            </div>                            {/* Condition */}
                             <div>
                                 <label className="text-sm font-medium mb-2 block">
                                     Kondisi
@@ -436,7 +425,7 @@ export default function CatalogPage() {
                                         handleFilterChange("condition", value)
                                     }
                                 >
-                                    <SelectTrigger>
+                                    <SelectTrigger className="h-12 border-2 focus:border-blue-500 rounded-xl">
                                         <SelectValue placeholder="Pilih kondisi" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -451,9 +440,7 @@ export default function CatalogPage() {
                                         </SelectItem>
                                     </SelectContent>
                                 </Select>
-                            </div>
-
-                            {/* Year */}
+                            </div>                            {/* Year */}
                             <div>
                                 <label className="text-sm font-medium mb-2 block">
                                     Tahun
@@ -464,7 +451,7 @@ export default function CatalogPage() {
                                         handleFilterChange("year", value)
                                     }
                                 >
-                                    <SelectTrigger>
+                                    <SelectTrigger className="h-12 border-2 focus:border-blue-500 rounded-xl">
                                         <SelectValue placeholder="Pilih tahun" />
                                     </SelectTrigger>{" "}
                                     <SelectContent>
@@ -484,11 +471,11 @@ export default function CatalogPage() {
                                             );
                                         })}
                                     </SelectContent>
-                                </Select>
-                            </div>
+                                </Select>                            </div>
                         </CardContent>
                     </Card>
                 </div>
+            </div>
 
                 {/* Main Content */}
                 <div className="lg:w-3/4">
@@ -505,14 +492,13 @@ export default function CatalogPage() {
                                     {activeFiltersCount} filter aktif
                                 </Badge>
                             )}
-                        </div>
-                        <Select
+                        </div>                        <Select
                             value={filters.sortBy}
                             onValueChange={(value) =>
                                 handleFilterChange("sortBy", value)
                             }
                         >
-                            <SelectTrigger className="w-48">
+                            <SelectTrigger className="w-48 h-12 border-2 focus:border-blue-500 rounded-xl">
                                 <SelectValue placeholder="Urutkan" />
                             </SelectTrigger>
                             <SelectContent>

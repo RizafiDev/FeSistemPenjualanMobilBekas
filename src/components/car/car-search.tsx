@@ -90,14 +90,12 @@ export default function CarSearch({
             search: "",
         });
         onSearch({ search: "" });
-    };
-
-    return (
-        <div className={`bg-white rounded-lg shadow-lg p-6 ${className}`}>
+    };    return (
+        <div className={`bg-white rounded-2xl shadow-xl border border-gray-100 p-8 ${className}`}>
             <Form {...form}>
                 <form
                     onSubmit={form.handleSubmit(onSubmit)}
-                    className="space-y-4"
+                    className="space-y-6"
                 >
                     {/* Search Input */}
                     <FormField
@@ -105,29 +103,27 @@ export default function CarSearch({
                         name="search"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Cari Mobil</FormLabel>
+                                <FormLabel className="text-lg font-semibold text-gray-900">Cari Mobil</FormLabel>
                                 <FormControl>
                                     <div className="relative">
-                                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                                        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                                         <Input
                                             placeholder="Nama mobil, merek, atau kata kunci..."
-                                            className="pl-10"
+                                            className="pl-12 h-12 text-base border-2 focus:border-blue-500 rounded-xl"
                                             {...field}
                                         />
                                     </div>
                                 </FormControl>
                             </FormItem>
                         )}
-                    />
-
-                    {/* Basic Filters Row */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    />                    {/* Basic Filters Row */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <FormField
                             control={form.control}
                             name="merek_id"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Merek</FormLabel>
+                                    <FormLabel className="text-base font-semibold text-gray-900">Merek</FormLabel>
                                     <Select
                                         onValueChange={(value) =>
                                             field.onChange(
@@ -139,7 +135,7 @@ export default function CarSearch({
                                         value={field.value?.toString()}
                                     >
                                         <FormControl>
-                                            <SelectTrigger>
+                                            <SelectTrigger className="h-12 border-2 focus:border-blue-500 rounded-xl">
                                                 <SelectValue placeholder="Pilih merek" />
                                             </SelectTrigger>
                                         </FormControl>{" "}
