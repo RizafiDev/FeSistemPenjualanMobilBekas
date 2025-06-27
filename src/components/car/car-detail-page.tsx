@@ -16,8 +16,19 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { useStokMobil } from "@/lib/hooks"; // ✅ Use stock data directly
+import { createJanjiTemu } from "@/lib/hooks"; // ✅ Import createJanjiTemu function
 import { formatCurrency, formatNumber } from "@/lib/utils";
 import {
   Calendar,
@@ -37,6 +48,9 @@ import {
   Shield,
   Award,
   Play,
+  Clock,
+  User,
+  Mail,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -49,6 +63,19 @@ export default function CarDetailPage({ stockId }: CarDetailPageProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
+
+  // ✅ Janji Temu Form State
+  const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
+  const [appointmentForm, setAppointmentForm] = useState({
+    nama_customer: "",
+    email: "",
+    no_telepon: "",
+    tanggal_diinginkan: "",
+    waktu_diinginkan: "",
+    jenis_kunjungan: "",
+    pesan: "",
+  });
+  const [isSubmittingAppointment, setIsSubmittingAppointment] = useState(false);
 
   // ✅ Fetch stock data using the corrected SWR hook
   const {
@@ -122,8 +149,122 @@ export default function CarDetailPage({ stockId }: CarDetailPageProps) {
     toast.success(isFavorite ? "Dihapus dari favorit" : "Ditambah ke favorit");
   };
 
-  const handleAppointment = () => {
-    toast.info("Fitur janji temu akan segera tersedia");
+  // ✅ Handle Appointment Form
+  const handleAppointmentFormChange = (field: string, value: string) => {
+    setAppointmentForm((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleAppointmentSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (
+      !appointmentForm.nama_customer ||
+      !appointmentForm.email ||
+      !appointmentForm.no_telepon ||
+      !appointmentForm.tanggal_diinginkan ||
+      !appointmentForm.waktu_diinginkan ||
+      !appointmentForm.jenis_kunjungan
+    ) {
+      toast.error("Mohon lengkapi semua field yang wajib diisi");
+      return;
+    }
+
+    setIsSubmittingAppointment(true);
+
+    try {
+      // ✅ Create mapping function with proper type safety
+      const mapJenisKunjungan = (
+        jenis: string
+      ): "test_drive" | "konsultasi" | "negosiasi" => {
+        switch (jenis) {
+          case "test_drive":
+            return "test_drive";
+          case "negosiasi":
+          case "nego_harga":
+            return "negosiasi";
+          case "konsultasi":
+          case "survey_harga":
+          case "lihat_unit":
+          default:
+            return "konsultasi";
+        }
+      };
+
+      // ✅ Create proper datetime format for backend (Laravel expects Y-m-d H:i:s format)
+      const createDateTime = (date: string, time: string): string => {
+        // Create date object from inputs
+        const selectedDate = new Date(`${date} ${time}:00`);
+
+        // Format to Laravel's expected format (Y-m-d H:i:s)
+        const year = selectedDate.getFullYear();
+        const month = String(selectedDate.getMonth() + 1).padStart(2, "0");
+        const day = String(selectedDate.getDate()).padStart(2, "0");
+        const hour = String(selectedDate.getHours()).padStart(2, "0");
+        const minute = String(selectedDate.getMinutes()).padStart(2, "0");
+        const second = "00";
+
+        return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+      };
+
+      const waktuMulai = createDateTime(
+        appointmentForm.tanggal_diinginkan,
+        appointmentForm.waktu_diinginkan
+      );
+
+      // ✅ Add 1 hour for waktu_selesai
+      const waktuSelesaiDate = new Date(waktuMulai);
+      waktuSelesaiDate.setHours(waktuSelesaiDate.getHours() + 1);
+
+      const waktuSelesai = createDateTime(
+        waktuSelesaiDate.toISOString().split("T")[0],
+        waktuSelesaiDate.toTimeString().substring(0, 5)
+      );
+
+      // ✅ Map form data to match backend validation with correct types
+      const appointmentData = {
+        stok_mobil_id: parseInt(stockId),
+        nama_pelanggan: appointmentForm.nama_customer,
+        email_pelanggan: appointmentForm.email,
+        telepon_pelanggan: appointmentForm.no_telepon,
+        waktu_mulai: waktuMulai,
+        waktu_selesai: waktuSelesai, // ✅ Add end time (1 hour later)
+        jenis: mapJenisKunjungan(appointmentForm.jenis_kunjungan),
+        metode: "offline" as const,
+        lokasi: "showroom" as const,
+        tujuan: appointmentForm.jenis_kunjungan,
+        pesan_tambahan: appointmentForm.pesan || "",
+      };
+
+      console.log("Sending appointment data:", appointmentData); // ✅ Debug log
+      console.log("Current time:", new Date().toISOString()); // ✅ Debug current time
+
+      await createJanjiTemu(appointmentData);
+
+      toast.success(
+        "Janji temu berhasil dibuat! Kami akan menghubungi Anda segera."
+      );
+
+      // Reset form
+      setAppointmentForm({
+        nama_customer: "",
+        email: "",
+        no_telepon: "",
+        tanggal_diinginkan: "",
+        waktu_diinginkan: "",
+        jenis_kunjungan: "",
+        pesan: "",
+      });
+
+      setIsAppointmentModalOpen(false);
+    } catch (error) {
+      console.error("Error creating appointment:", error);
+      toast.error("Gagal membuat janji temu. Silakan coba lagi.");
+    } finally {
+      setIsSubmittingAppointment(false);
+    }
   };
 
   const handleContact = () => {
@@ -136,6 +277,13 @@ export default function CarDetailPage({ stockId }: CarDetailPageProps) {
       message
     )}`;
     window.open(whatsappUrl, "_blank");
+  };
+
+  // Get minimum date (today)
+  const getMinDate = () => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1); // ✅ Set to tomorrow to avoid timezone issues
+    return tomorrow.toISOString().split("T")[0];
   };
 
   return (
@@ -165,7 +313,7 @@ export default function CarDetailPage({ stockId }: CarDetailPageProps) {
           {/* Image Gallery */}
           <div className="lg:col-span-2">
             <Card>
-              <CardContent className="p-0">
+              <CardContent className="p-0 ">
                 <div className="relative">
                   {allImages.length > 0 ? (
                     <>
@@ -318,18 +466,6 @@ export default function CarDetailPage({ stockId }: CarDetailPageProps) {
                         </h4>
                         <div className="grid grid-cols-2 gap-4 text-sm">
                           <div>
-                            <span className="text-gray-600">No. Rangka:</span>
-                            <span className="ml-2 font-medium">
-                              {stokMobil.no_rangka}
-                            </span>
-                          </div>
-                          <div>
-                            <span className="text-gray-600">No. Mesin:</span>
-                            <span className="ml-2 font-medium">
-                              {stokMobil.no_mesin}
-                            </span>
-                          </div>
-                          <div>
                             <span className="text-gray-600">Warna:</span>
                             <span className="ml-2 font-medium">
                               {stokMobil.warna}
@@ -341,6 +477,42 @@ export default function CarDetailPage({ stockId }: CarDetailPageProps) {
                               {stokMobil.kondisi?.replace("_", " ")}
                             </Badge>
                           </div>
+                          {/* Kelengkapan */}
+                          {stokMobil.kelengkapan &&
+                            stokMobil.kelengkapan.length > 0 && (
+                              <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+                                <h4 className="text-md font-semibold mb-3 flex items-center gap-2">
+                                  <FileText className="w-5 h-5 text-blue-600" />
+                                  Kelengkapan
+                                </h4>
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                                  {stokMobil.kelengkapan.map(
+                                    (item: string, index: number) => (
+                                      <div
+                                        key={index}
+                                        className="flex items-center gap-2 text-sm"
+                                      >
+                                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                        <span>{item}</span>
+                                      </div>
+                                    )
+                                  )}
+                                </div>
+                              </div>
+                            )}
+
+                          {/* Catatan tambahan */}
+                          {stokMobil.catatan && (
+                            <div className="mt-6 p-4 bg-yellow-50 rounded-lg">
+                              <h4 className="text-md font-semibold mb-3 flex items-center gap-2">
+                                <MessageCircle className="w-5 h-5 text-yellow-600" />
+                                Catatan
+                              </h4>
+                              <p className="text-sm text-gray-700 leading-relaxed">
+                                {stokMobil.catatan}
+                              </p>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -588,17 +760,17 @@ export default function CarDetailPage({ stockId }: CarDetailPageProps) {
                       )}
 
                       {/* ✅ Fitur Keselamatan, Kenyamanan, dan Hiburan */}
-                      {varianData && (
+                      {stokMobil && stokMobil.kondisi_fitur && (
                         <div className="mt-8 space-y-6">
                           {/* Fitur Keselamatan */}
-                          {varianData.fitur_keamanan &&
-                            varianData.fitur_keamanan.length > 0 && (
+                          {stokMobil.kondisi_fitur.keamanan &&
+                            stokMobil.kondisi_fitur.keamanan.length > 0 && (
                               <div>
                                 <h4 className="font-semibold text-primary mb-3">
                                   Fitur Keselamatan
                                 </h4>
                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                                  {varianData.fitur_keamanan.map(
+                                  {stokMobil.kondisi_fitur.keamanan.map(
                                     (fitur: string, index: number) => (
                                       <div
                                         key={index}
@@ -614,14 +786,14 @@ export default function CarDetailPage({ stockId }: CarDetailPageProps) {
                             )}
 
                           {/* Fitur Kenyamanan */}
-                          {varianData.fitur_kenyamanan &&
-                            varianData.fitur_kenyamanan.length > 0 && (
+                          {stokMobil.kondisi_fitur.kenyamanan &&
+                            stokMobil.kondisi_fitur.kenyamanan.length > 0 && (
                               <div>
                                 <h4 className="font-semibold text-primary mb-3">
                                   Fitur Kenyamanan
                                 </h4>
                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                                  {varianData.fitur_kenyamanan.map(
+                                  {stokMobil.kondisi_fitur.kenyamanan.map(
                                     (fitur: string, index: number) => (
                                       <div
                                         key={index}
@@ -637,14 +809,14 @@ export default function CarDetailPage({ stockId }: CarDetailPageProps) {
                             )}
 
                           {/* Fitur Hiburan */}
-                          {varianData.fitur_hiburan &&
-                            varianData.fitur_hiburan.length > 0 && (
+                          {stokMobil.kondisi_fitur.hiburan &&
+                            stokMobil.kondisi_fitur.hiburan.length > 0 && (
                               <div>
                                 <h4 className="font-semibold text-primary mb-3">
                                   Fitur Hiburan
                                 </h4>
                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                                  {varianData.fitur_hiburan.map(
+                                  {stokMobil.kondisi_fitur.hiburan.map(
                                     (fitur: string, index: number) => (
                                       <div
                                         key={index}
@@ -672,7 +844,7 @@ export default function CarDetailPage({ stockId }: CarDetailPageProps) {
                         <div className="space-y-3">
                           {riwayatServis.map((service: any) => (
                             <Card key={service.id}>
-                              <CardContent className="p-4">
+                              <CardContent>
                                 <div className="flex justify-between items-start">
                                   <div>
                                     <h4 className="font-medium">
@@ -696,11 +868,6 @@ export default function CarDetailPage({ stockId }: CarDetailPageProps) {
                                       </p>
                                     )}
                                   </div>
-                                  {service.biaya && (
-                                    <span className="text-sm font-medium">
-                                      {formatCurrency(service.biaya)}
-                                    </span>
-                                  )}
                                 </div>
                               </CardContent>
                             </Card>
@@ -817,15 +984,221 @@ export default function CarDetailPage({ stockId }: CarDetailPageProps) {
 
                 {/* Action Buttons */}
                 <div className="space-y-3">
-                  <Button
-                    className="w-full"
-                    size="lg"
-                    onClick={handleAppointment}
-                    disabled={stokMobil.status !== "tersedia"}
+                  {/* ✅ Appointment Button with Dialog */}
+                  <Dialog
+                    open={isAppointmentModalOpen}
+                    onOpenChange={setIsAppointmentModalOpen}
                   >
-                    <Calendar className="w-4 h-4 mr-2" />
-                    Buat Janji Temu
-                  </Button>
+                    <DialogTrigger asChild>
+                      <Button
+                        className="w-full"
+                        size="lg"
+                        disabled={stokMobil.status !== "tersedia"}
+                      >
+                        <Calendar className="w-4 h-4 mr-2" />
+                        Buat Janji Temu
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-md">
+                      <DialogHeader>
+                        <DialogTitle>Buat Janji Temu</DialogTitle>
+                        <p className="text-sm text-gray-600">
+                          Isi form di bawah untuk membuat janji temu melihat
+                          mobil {carData.nama}
+                        </p>
+                      </DialogHeader>
+
+                      <form
+                        onSubmit={handleAppointmentSubmit}
+                        className="space-y-4"
+                      >
+                        {/* Nama Customer */}
+                        <div>
+                          <Label htmlFor="nama_customer">
+                            Nama Lengkap <span className="text-red-500">*</span>
+                          </Label>
+                          <Input
+                            id="nama_customer"
+                            type="text"
+                            value={appointmentForm.nama_customer}
+                            onChange={(e) =>
+                              handleAppointmentFormChange(
+                                "nama_customer",
+                                e.target.value
+                              )
+                            }
+                            placeholder="Masukkan nama lengkap"
+                            required
+                          />
+                        </div>
+                        {/* Email */}
+                        <div>
+                          <Label htmlFor="email">
+                            Email <span className="text-red-500">*</span>
+                          </Label>
+                          <Input
+                            id="email"
+                            type="email"
+                            value={appointmentForm.email}
+                            onChange={(e) =>
+                              handleAppointmentFormChange(
+                                "email",
+                                e.target.value
+                              )
+                            }
+                            placeholder="contoh@email.com"
+                            required
+                          />
+                        </div>
+                        {/* No Telepon */}
+                        <div>
+                          <Label htmlFor="no_telepon">
+                            No. Telepon <span className="text-red-500">*</span>
+                          </Label>
+                          <Input
+                            id="no_telepon"
+                            type="tel"
+                            value={appointmentForm.no_telepon}
+                            onChange={(e) =>
+                              handleAppointmentFormChange(
+                                "no_telepon",
+                                e.target.value
+                              )
+                            }
+                            placeholder="08123456789"
+                            required
+                          />
+                        </div>
+                        {/* Tanggal Diinginkan */}
+                        <div>
+                          <Label htmlFor="tanggal_diinginkan">
+                            Tanggal Kunjungan{" "}
+                            <span className="text-red-500">*</span>
+                          </Label>
+                          <Input
+                            id="tanggal_diinginkan"
+                            type="date"
+                            value={appointmentForm.tanggal_diinginkan}
+                            onChange={(e) =>
+                              handleAppointmentFormChange(
+                                "tanggal_diinginkan",
+                                e.target.value
+                              )
+                            }
+                            min={getMinDate()}
+                            required
+                          />
+                        </div>
+                        {/* Waktu Diinginkan */}
+                        <div>
+                          <Label htmlFor="waktu_diinginkan">
+                            Waktu Kunjungan{" "}
+                            <span className="text-red-500">*</span>
+                          </Label>
+                          <Select
+                            value={appointmentForm.waktu_diinginkan}
+                            onValueChange={(value) =>
+                              handleAppointmentFormChange(
+                                "waktu_diinginkan",
+                                value
+                              )
+                            }
+                            required
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Pilih waktu" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="09:00">09:00 WIB</SelectItem>
+                              <SelectItem value="10:00">10:00 WIB</SelectItem>
+                              <SelectItem value="11:00">11:00 WIB</SelectItem>
+                              <SelectItem value="13:00">13:00 WIB</SelectItem>
+                              <SelectItem value="14:00">14:00 WIB</SelectItem>
+                              <SelectItem value="15:00">15:00 WIB</SelectItem>
+                              <SelectItem value="16:00">16:00 WIB</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        {/* Jenis Kunjungan */}
+                        <div>
+                          <Label htmlFor="jenis_kunjungan">
+                            Jenis Kunjungan{" "}
+                            <span className="text-red-500">*</span>
+                          </Label>
+                          <Select
+                            value={appointmentForm.jenis_kunjungan}
+                            onValueChange={(value) =>
+                              handleAppointmentFormChange(
+                                "jenis_kunjungan",
+                                value
+                              )
+                            }
+                            required
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Pilih jenis kunjungan" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="test_drive">
+                                Test Drive
+                              </SelectItem>
+                              <SelectItem value="konsultasi">
+                                Konsultasi
+                              </SelectItem>
+                              <SelectItem value="negosiasi">
+                                Negosiasi Harga
+                              </SelectItem>
+                              <SelectItem value="survey_harga">
+                                Survey Harga
+                              </SelectItem>
+                              <SelectItem value="lihat_unit">
+                                Lihat Unit
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        {/* Pesan */}
+                        <div>
+                          <Label htmlFor="pesan">Pesan (Opsional)</Label>
+                          <Textarea
+                            id="pesan"
+                            value={appointmentForm.pesan}
+                            onChange={(e) =>
+                              handleAppointmentFormChange(
+                                "pesan",
+                                e.target.value
+                              )
+                            }
+                            placeholder="Pesan tambahan untuk kami..."
+                            rows={3}
+                          />
+                        </div>
+
+                        {/* Submit Button */}
+                        <div className="flex gap-2 pt-4">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setIsAppointmentModalOpen(false)}
+                            className="flex-1"
+                          >
+                            Batal
+                          </Button>
+                          <Button
+                            type="submit"
+                            disabled={isSubmittingAppointment}
+                            className="flex-1"
+                          >
+                            {isSubmittingAppointment
+                              ? "Mengirim..."
+                              : "Buat Janji Temu"}
+                          </Button>
+                        </div>
+                      </form>
+                    </DialogContent>
+                  </Dialog>
 
                   <Button
                     variant="outline"

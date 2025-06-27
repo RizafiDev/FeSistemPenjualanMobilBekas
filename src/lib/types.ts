@@ -50,31 +50,35 @@ export interface Mobil extends BaseModel {
 // StokMobil (Car Stock) interface - Fixed to match backend model
 export interface StokMobil extends BaseModel {
   mobil_id: number;
-  varian_id?: number; // ✅ Fixed - backend uses varian_id, not varian string
+  varian_id?: number;
   warna: string;
-  no_rangka?: string; // ✅ Added missing field
-  no_mesin?: string; // ✅ Added missing field
   tahun?: number;
   kilometer?: number;
-  kondisi: "baru" | "bekas";
-  status: "tersedia" | "terjual" | "reserved"; // ✅ Keep frontend enum
-  harga_beli?: number; // ✅ Added missing field
-  harga_jual: number; // ✅ Fixed from 'harga' to 'harga_jual'
-  tanggal_masuk?: string; // ✅ Added missing field
-  tanggal_keluar?: string; // ✅ Added missing field
-  lokasi?: string; // ✅ Added missing field
-  catatan?: string; // ✅ Added missing field
-  kelengkapan?: string[]; // ✅ Added missing field (array)
-  riwayat_perbaikan?: any[]; // ✅ Added missing field (array)
-  dokumen?: string[]; // ✅ Added missing field (array)
-  foto_kondisi?: string[]; // ✅ Added missing field (array)
-  kondisi_fitur?: any[]; // ✅ Added missing field (array)
+  kondisi: "baru" | "bekas" | "sangat_baik"; // ✅ Added sangat_baik
+  status: "tersedia" | "terjual" | "reserved";
+  harga_jual: number;
+  lokasi?: string;
+  catatan?: string;
+  kelengkapan?: string[];
+  riwayat_perbaikan?: any[];
+  foto_kondisi?: string[];
+  foto_kondisi_urls?: string[]; // ✅ Added for photo URLs
+  // ✅ Updated kondisi_fitur structure to match API
+  kondisi_fitur?: {
+    keamanan?: string[];
+    kenyamanan?: string[];
+    hiburan?: string[];
+  };
+  // ✅ Keep these for backward compatibility
+  fitur_keamanan?: string[];
+  fitur_kenyamanan?: string[];
+  fitur_hiburan?: string[];
   // New fields for frontend display
-  foto_url?: string; // ✅ URL from foto_kondisi for catalog display
-  nama_lengkap?: string; // ✅ Full name for display
+  foto_url?: string;
+  nama_lengkap?: string;
   // Relations
   mobil?: Mobil;
-  varian?: Varian; // ✅ Added varian relation
+  varian?: Varian;
   riwayat_servis?: RiwayatServis[];
 }
 
@@ -113,12 +117,12 @@ export interface JanjiTemu {
   email_pelanggan: string;
   telepon_pelanggan: string;
   alamat_pelanggan?: string;
-  stok_mobil_id?: number; // Make this optional
+  stok_mobil_id?: number; // Make this optional as per backend validation
   waktu_mulai: string;
-  waktu_selesai: string;
+  waktu_selesai?: string; // Optional as per backend
   waktu_alternatif?: string;
-  jenis: "test_drive" | "konsultasi" | "negosiasi";
-  metode: "online" | "offline";
+  jenis: "test_drive" | "konsultasi" | "negosiasi"; // ✅ Match backend validation exactly
+  metode?: "online" | "offline";
   lokasi?: "showroom" | "rumah_pelanggan";
   tujuan?: string;
   pesan_tambahan?: string;

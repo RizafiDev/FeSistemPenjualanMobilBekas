@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getCarDetailSEO } from "@/lib/seo";
 import CarDetailPage from "@/components/car/car-detail-page";
+import { API_BASE_URL } from "@/lib/api";
 
 interface Props {
   params: Promise<{
@@ -10,6 +11,30 @@ interface Props {
   searchParams: Promise<{
     stock?: string;
   }>;
+}
+
+// Helper function to fetch stock data
+async function fetchStockData(stockId: string) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/stok-mobils/${stockId}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      // Add cache control for better performance
+      next: { revalidate: 60 }, // Revalidate every 60 seconds
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch stock data: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.data || data; // Handle different API response formats
+  } catch (error) {
+    console.error("Error fetching stock data:", error);
+    return null;
+  }
 }
 
 // Generate metadata for SEO
@@ -21,21 +46,64 @@ export async function generateMetadata({
   const resolvedSearchParams = await searchParams;
 
   // Extract stock ID from query params or slug
-  const stockId =
-    resolvedSearchParams?.stock || resolvedParams.slug.split("-").pop();
+  let stockId: string = "1"; // Default fallback
+
+  // 1. Check if stock ID is in query params (e.g., ?stock=123)
+  if (resolvedSearchParams?.stock) {
+    stockId = resolvedSearchParams.stock;
+  } else {
+    // 2. Extract from slug - assume last part is stock ID
+    const slugParts = resolvedParams.slug.split("-");
+    const lastPart = slugParts[slugParts.length - 1];
+
+    // Check if last part is a number (stock ID)
+    if (!isNaN(Number(lastPart)) && lastPart !== "") {
+      stockId = lastPart;
+    } else {
+      // Try to find any number in the slug
+      for (let i = slugParts.length - 1; i >= 0; i--) {
+        if (!isNaN(Number(slugParts[i])) && slugParts[i] !== "") {
+          stockId = slugParts[i];
+          break;
+        }
+      }
+    }
+  }
 
   try {
-    // In real app, fetch stock data here
-    // const stockData = await fetchStockById(stockId)
-    const mockCar = {
-      nama: "Toyota Avanza",
-      merek: { nama: "Toyota" },
-      harga: 150000000,
-      deskripsi: "Mobil keluarga yang nyaman dan irit bahan bakar",
+    // Fetch actual stock data from API
+    const stockData = await fetchStockData(stockId);
+
+    if (!stockData) {
+      return {
+        title: "Mobil Tidak Ditemukan | Toko Jaya Motor",
+        description: "Mobil yang Anda cari tidak tersedia.",
+      };
+    }
+
+    // Create car object for SEO
+    const carForSEO = {
+      nama:
+        stockData.nama_lengkap ||
+        `${stockData.mobil?.nama} ${stockData.varian?.nama}`,
+      merek: {
+        nama: stockData.mobil?.merek?.nama || "Unknown",
+      },
+      harga: stockData.harga_jual || 0,
+      deskripsi:
+        stockData.catatan ||
+        stockData.mobil?.deskripsi ||
+        "Mobil berkualitas dengan kondisi prima",
+      tahun: stockData.tahun || stockData.mobil?.tahun_mulai,
+      warna: stockData.warna,
+      kondisi: stockData.kondisi,
+      lokasi: stockData.lokasi,
+      kilometer: stockData.kilometer,
     };
 
-    return getCarDetailSEO(mockCar);
-  } catch {
+    return getCarDetailSEO(carForSEO);
+  } catch (error) {
+    console.error("Error generating metadata:", error);
     return {
       title: "Mobil Tidak Ditemukan | Toko Jaya Motor",
       description: "Mobil yang Anda cari tidak tersedia.",

@@ -182,7 +182,8 @@ export const createJanjiTemu = async (
     "id" | "status" | "created_at" | "updated_at" | "tanggal_request"
   >
 ): Promise<JanjiTemu> => {
-  const response = await fetch(`${API_BASE_URL}/janji-temu`, {
+  // ✅ Use correct API endpoint
+  const response = await fetch(`${API_BASE_URL}/janji-temus`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -192,6 +193,9 @@ export const createJanjiTemu = async (
       ...data,
       // Convert undefined to null for the API
       stok_mobil_id: data.stok_mobil_id || null,
+      // Add default values if not provided
+      status: "pending",
+      tanggal_request: new Date().toISOString(),
     }),
   });
 
