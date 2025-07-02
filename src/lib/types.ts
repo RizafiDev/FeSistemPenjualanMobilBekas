@@ -52,6 +52,9 @@ export interface StokMobil extends BaseModel {
   mobil_id: number;
   varian_id?: number;
   warna: string;
+  no_rangka?: string; // ✅ Added missing field
+  no_mesin?: string; // ✅ Added missing field
+  no_polisi?: string; // ✅ Added no_polisi field
   tahun?: number;
   kilometer?: number;
   kondisi: "baru" | "bekas" | "sangat_baik"; // ✅ Added sangat_baik

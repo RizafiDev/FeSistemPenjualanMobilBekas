@@ -145,9 +145,6 @@ export default function StockCarCard({
             Lihat Detail
           </Link>
         </Button>
-        <Button variant="outline" asChild>
-          <Link href={`/janji-temu?stock=${stockCar.id}`}>Janji Temu</Link>
-        </Button>
       </CardFooter>
     </Card>
   );

@@ -29,7 +29,12 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { useStokMobil } from "@/lib/hooks"; // ✅ Use stock data directly
 import { createJanjiTemu } from "@/lib/hooks"; // ✅ Import createJanjiTemu function
-import { formatCurrency, formatNumber } from "@/lib/utils";
+import {
+  formatCurrency,
+  formatNumber,
+  sensorNoPolisi,
+  formatNoPolisi,
+} from "@/lib/utils"; // ✅ Import sensor functions
 import {
   Calendar,
   Fuel,
@@ -51,6 +56,7 @@ import {
   Clock,
   User,
   Mail,
+  CreditCard, // ✅ Add icon for no_polisi
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -477,43 +483,62 @@ export default function CarDetailPage({ stockId }: CarDetailPageProps) {
                               {stokMobil.kondisi?.replace("_", " ")}
                             </Badge>
                           </div>
-                          {/* Kelengkapan */}
-                          {stokMobil.kelengkapan &&
-                            stokMobil.kelengkapan.length > 0 && (
-                              <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-                                <h4 className="text-md font-semibold mb-3 flex items-center gap-2">
-                                  <FileText className="w-5 h-5 text-blue-600" />
-                                  Kelengkapan
-                                </h4>
-                                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                                  {stokMobil.kelengkapan.map(
-                                    (item: string, index: number) => (
-                                      <div
-                                        key={index}
-                                        className="flex items-center gap-2 text-sm"
-                                      >
-                                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                                        <span>{item}</span>
-                                      </div>
-                                    )
-                                  )}
-                                </div>
-                              </div>
-                            )}
+                          {/* ✅ Add No. Polisi with Sensor */}
+                          <div className="col-span-2">
+                            <span className="text-gray-600">No. Polisi:</span>
+                            <div className="ml-2 inline-flex items-center gap-2">
+                              <CreditCard className="w-4 h-4 text-blue-500" />
+                              <Badge
+                                variant="outline"
+                                className="text-blue-600"
+                              >
+                                {formatNoPolisi(stokMobil.no_polisi)}
+                              </Badge>
+                              {stokMobil.no_polisi && (
+                                <span className="text-xs text-gray-500">
+                                  (disensor untuk privasi)
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
 
-                          {/* Catatan tambahan */}
-                          {stokMobil.catatan && (
-                            <div className="mt-6 p-4 bg-yellow-50 rounded-lg">
+                        {/* Kelengkapan */}
+                        {stokMobil.kelengkapan &&
+                          stokMobil.kelengkapan.length > 0 && (
+                            <div className="mt-6 p-4 bg-blue-50 rounded-lg">
                               <h4 className="text-md font-semibold mb-3 flex items-center gap-2">
-                                <MessageCircle className="w-5 h-5 text-yellow-600" />
-                                Catatan
+                                <FileText className="w-5 h-5 text-blue-600" />
+                                Kelengkapan
                               </h4>
-                              <p className="text-sm text-gray-700 leading-relaxed">
-                                {stokMobil.catatan}
-                              </p>
+                              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                                {stokMobil.kelengkapan.map(
+                                  (item: string, index: number) => (
+                                    <div
+                                      key={index}
+                                      className="flex items-center gap-2 text-sm"
+                                    >
+                                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                      <span>{item}</span>
+                                    </div>
+                                  )
+                                )}
+                              </div>
                             </div>
                           )}
-                        </div>
+
+                        {/* Catatan tambahan */}
+                        {stokMobil.catatan && (
+                          <div className="mt-6 p-4 bg-yellow-50 rounded-lg">
+                            <h4 className="text-md font-semibold mb-3 flex items-center gap-2">
+                              <MessageCircle className="w-5 h-5 text-yellow-600" />
+                              Catatan
+                            </h4>
+                            <p className="text-sm text-gray-700 leading-relaxed">
+                              {stokMobil.catatan}
+                            </p>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </TabsContent>
@@ -523,6 +548,58 @@ export default function CarDetailPage({ stockId }: CarDetailPageProps) {
                       <h3 className="text-lg font-semibold">
                         Spesifikasi Teknis
                       </h3>
+
+                      {/* ✅ Add Vehicle Identity Section */}
+                      <div className="space-y-6">
+                        <h4 className="font-semibold text-primary">
+                          Identitas Kendaraan
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
+                          {stokMobil.no_rangka && (
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-600">No. Rangka:</span>
+                              <div className="flex items-center gap-2">
+                                <span className="font-mono text-sm">
+                                  {sensorNoPolisi(stokMobil.no_rangka)}
+                                </span>
+                                <span className="text-xs text-gray-500">
+                                  (disensor)
+                                </span>
+                              </div>
+                            </div>
+                          )}
+                          {stokMobil.no_mesin && (
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-600">No. Mesin:</span>
+                              <div className="flex items-center gap-2">
+                                <span className="font-mono text-sm">
+                                  {sensorNoPolisi(stokMobil.no_mesin)}
+                                </span>
+                                <span className="text-xs text-gray-500">
+                                  (disensor)
+                                </span>
+                              </div>
+                            </div>
+                          )}
+                          {stokMobil.no_polisi && (
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-600">No. Polisi:</span>
+                              <div className="flex items-center gap-2">
+                                <Badge
+                                  variant="outline"
+                                  className="text-blue-600"
+                                >
+                                  {formatNoPolisi(stokMobil.no_polisi)}
+                                </Badge>
+                                <span className="text-xs text-gray-500">
+                                  (disensor)
+                                </span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
                       {varianData ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           {/* Mesin */}
@@ -900,6 +977,18 @@ export default function CarDetailPage({ stockId }: CarDetailPageProps) {
                     {varianData?.nama && (
                       <p className="text-sm text-gray-500">{varianData.nama}</p>
                     )}
+                    {/* ✅ Add No. Polisi info */}
+                    {stokMobil.no_polisi && (
+                      <div className="flex items-center gap-2 mt-2">
+                        <CreditCard className="w-4 h-4 text-blue-500" />
+                        <Badge
+                          variant="outline"
+                          className="text-blue-600 text-xs"
+                        >
+                          {formatNoPolisi(stokMobil.no_polisi)}
+                        </Badge>
+                      </div>
+                    )}
                   </div>
                   <div className="flex gap-2">
                     <Button variant="ghost" size="icon" onClick={handleShare}>
@@ -978,6 +1067,15 @@ export default function CarDetailPage({ stockId }: CarDetailPageProps) {
                       </span>
                     </div>
                   )}
+                  {/* ✅ Add No. Polisi in quick specs */}
+                  {stokMobil.no_polisi && (
+                    <div className="flex items-center gap-2 col-span-2">
+                      <CreditCard className="w-4 h-4 text-blue-500" />
+                      <span className="text-sm">
+                        {formatNoPolisi(stokMobil.no_polisi)}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 <Separator className="my-4" />
@@ -1014,7 +1112,7 @@ export default function CarDetailPage({ stockId }: CarDetailPageProps) {
                       >
                         {/* Nama Customer */}
                         <div>
-                          <Label htmlFor="nama_customer">
+                          <Label htmlFor="nama_customer" className="pb-3">
                             Nama Lengkap <span className="text-red-500">*</span>
                           </Label>
                           <Input
@@ -1033,7 +1131,7 @@ export default function CarDetailPage({ stockId }: CarDetailPageProps) {
                         </div>
                         {/* Email */}
                         <div>
-                          <Label htmlFor="email">
+                          <Label htmlFor="email" className="pb-3">
                             Email <span className="text-red-500">*</span>
                           </Label>
                           <Input
@@ -1052,7 +1150,7 @@ export default function CarDetailPage({ stockId }: CarDetailPageProps) {
                         </div>
                         {/* No Telepon */}
                         <div>
-                          <Label htmlFor="no_telepon">
+                          <Label htmlFor="no_telepon" className="pb-3">
                             No. Telepon <span className="text-red-500">*</span>
                           </Label>
                           <Input
@@ -1071,7 +1169,7 @@ export default function CarDetailPage({ stockId }: CarDetailPageProps) {
                         </div>
                         {/* Tanggal Diinginkan */}
                         <div>
-                          <Label htmlFor="tanggal_diinginkan">
+                          <Label htmlFor="tanggal_diinginkan" className="pb-3">
                             Tanggal Kunjungan{" "}
                             <span className="text-red-500">*</span>
                           </Label>
@@ -1091,8 +1189,8 @@ export default function CarDetailPage({ stockId }: CarDetailPageProps) {
                         </div>
                         {/* Waktu Diinginkan */}
                         <div>
-                          <Label htmlFor="waktu_diinginkan">
-                            Waktu Kunjungan{" "}
+                          <Label htmlFor="waktu_diinginkan" className="pb-3">
+                            Waktu Kunjungan
                             <span className="text-red-500">*</span>
                           </Label>
                           <Select
@@ -1122,7 +1220,7 @@ export default function CarDetailPage({ stockId }: CarDetailPageProps) {
 
                         {/* Jenis Kunjungan */}
                         <div>
-                          <Label htmlFor="jenis_kunjungan">
+                          <Label htmlFor="jenis_kunjungan" className="pb-3">
                             Jenis Kunjungan{" "}
                             <span className="text-red-500">*</span>
                           </Label>
@@ -1161,7 +1259,9 @@ export default function CarDetailPage({ stockId }: CarDetailPageProps) {
 
                         {/* Pesan */}
                         <div>
-                          <Label htmlFor="pesan">Pesan (Opsional)</Label>
+                          <Label htmlFor="pesan" className="pb-3">
+                            Pesan (Opsional)
+                          </Label>
                           <Textarea
                             id="pesan"
                             value={appointmentForm.pesan}
