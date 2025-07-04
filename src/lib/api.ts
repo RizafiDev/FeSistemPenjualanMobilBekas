@@ -2,6 +2,9 @@
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000/api/admin";
 
+// API Key Configuration
+export const API_KEY = process.env.NEXT_PUBLIC_API_KEY || "";
+
 // Import types for transformation
 import type { Mobil, FotoMobil } from "./types";
 
@@ -16,6 +19,21 @@ export const API_ENDPOINTS = {
   STOK_MOBILS: "/stok-mobils",
   VARIANS: "/varians", // ✅ Added missing endpoint
 } as const;
+
+// Authentication headers helper
+export const getAuthHeaders = (): Record<string, string> => {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  };
+
+  // Add API key to headers if available
+  if (API_KEY) {
+    headers["Authorization"] = `Bearer ${API_KEY}`;
+  }
+
+  return headers;
+};
 
 // API Helper Functions
 export const buildApiUrl = (endpoint: string): string => {
@@ -67,7 +85,7 @@ export const transformFotoMobilData = (foto: any): FotoMobil => {
   };
 };
 
-// Fetch wrapper with error handling
+// Fetch wrapper with error handling and authentication
 export const apiFetch = async <T>(
   url: string,
   options?: RequestInit
@@ -75,14 +93,19 @@ export const apiFetch = async <T>(
   try {
     const response = await fetch(url, {
       headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
+        ...getAuthHeaders(),
         ...options?.headers,
       },
       ...options,
     });
 
     if (!response.ok) {
+      // Handle authentication errors
+      if (response.status === 401) {
+        console.error("API Authentication Error: Invalid or missing API key");
+        throw new Error("Authentication required. Please check your API key.");
+      }
+
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
@@ -102,8 +125,7 @@ export const apiSafeFetch = async <T>(
   try {
     const response = await fetch(url, {
       headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
+        ...getAuthHeaders(),
         ...options?.headers,
       },
       ...options,
@@ -113,6 +135,12 @@ export const apiSafeFetch = async <T>(
       // Enhanced error handling
       const errorText = await response.text();
       console.error(`API Error [${response.status}]:`, errorText);
+
+      // Handle authentication errors
+      if (response.status === 401) {
+        console.error("API Authentication Error: Invalid or missing API key");
+        throw new Error("Authentication required. Please check your API key.");
+      }
 
       // Try to parse error as JSON
       try {

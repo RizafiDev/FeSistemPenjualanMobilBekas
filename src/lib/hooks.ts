@@ -6,6 +6,7 @@ import {
   transformFotoMobilData,
   getImageUrl,
   apiFetch,
+  getAuthHeaders,
 } from "./api";
 import type {
   Mobil,
@@ -19,9 +20,11 @@ import type {
   CarSearchFilters,
   Varian,
 } from "./types";
+
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000/api/admin";
-// Generic fetcher for SWR using the enhanced API fetch
+
+// Generic fetcher for SWR using the enhanced API fetch with authentication
 const fetcher = async <T = unknown>(url: string): Promise<T> => {
   const data = await apiSafeFetch<T>(url);
 
@@ -182,12 +185,11 @@ export const createJanjiTemu = async (
     "id" | "status" | "created_at" | "updated_at" | "tanggal_request"
   >
 ): Promise<JanjiTemu> => {
-  // ✅ Use correct API endpoint
+  // ✅ Use correct API endpoint with authentication
   const response = await fetch(`${API_BASE_URL}/janji-temus`, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
+      ...getAuthHeaders(),
     },
     body: JSON.stringify({
       ...data,
@@ -200,6 +202,11 @@ export const createJanjiTemu = async (
   });
 
   if (!response.ok) {
+    // Handle authentication errors
+    if (response.status === 401) {
+      throw new Error("Authentication required. Please check your API key.");
+    }
+
     const errorData = await response.json().catch(() => ({}));
     throw new Error(
       errorData.message || `HTTP error! status: ${response.status}`
