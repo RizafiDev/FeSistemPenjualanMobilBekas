@@ -20,12 +20,19 @@ import type {
   CarSearchFilters,
   Varian,
 } from "./types";
+import { createCachedFetcher, invalidateCache } from "./swr-config";
+import {
+  getCachedData,
+  setCachedData,
+  generateCacheKey,
+  getCacheDuration,
+} from "./cache";
 
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000/api/admin";
 
-// Generic fetcher for SWR using the enhanced API fetch with authentication
-const fetcher = async <T = unknown>(url: string): Promise<T> => {
+// Enhanced fetcher with caching capabilities
+const originalFetcher = async <T = unknown>(url: string): Promise<T> => {
   const data = await apiSafeFetch<T>(url);
 
   // Transform foto data if present
@@ -70,6 +77,38 @@ const fetcher = async <T = unknown>(url: string): Promise<T> => {
   return data;
 };
 
+// Create cached fetcher instance
+const fetcher = async (url: string): Promise<any> => {
+  const cacheKey = generateCacheKey(url);
+
+  // Try to get from cache first
+  const cachedData = getCachedData(cacheKey);
+  if (cachedData) {
+    console.log(`Cache hit for: ${url}`);
+    return cachedData;
+  }
+
+  try {
+    // If not in cache, fetch from API
+    console.log(`Cache miss, fetching from API: ${url}`);
+    const data = await originalFetcher(url);
+
+    // Cache the result
+    const cacheDuration = getCacheDuration(url);
+    setCachedData(cacheKey, data, cacheDuration);
+
+    return data;
+  } catch (error) {
+    // If API fails, try to serve stale data
+    const staleData = getCachedData(cacheKey);
+    if (staleData) {
+      console.warn(`API failed, serving stale data for: ${url}`);
+      return staleData;
+    }
+    throw error;
+  }
+};
+
 // Custom hooks for API data fetching
 
 export const useMobils = (filters?: CarSearchFilters) => {
@@ -88,39 +127,68 @@ export const useMobils = (filters?: CarSearchFilters) => {
     `${API_ENDPOINTS.MOBILS}${queryParams ? `?${queryParams}` : ""}`
   );
 
-  return useSWR<PaginatedResponse<Mobil>>(url, fetcher);
+  return useSWR<PaginatedResponse<Mobil>>(url, fetcher, {
+    revalidateOnFocus: false,
+    revalidateOnMount: true,
+    dedupingInterval: 2000,
+    refreshInterval: 5 * 60 * 1000, // Refresh every 5 minutes
+  });
 };
 
 export const useMobil = (id: string | number) => {
   const url = buildApiUrl(`${API_ENDPOINTS.MOBILS}/${id}`);
-  return useSWR(id ? url : null, fetcher);
+  return useSWR(id ? url : null, fetcher, {
+    revalidateOnFocus: false,
+    dedupingInterval: 2000,
+    refreshInterval: 10 * 60 * 1000, // Refresh every 10 minutes
+  });
 };
 
 export const useMereks = () => {
   const url = buildApiUrl(API_ENDPOINTS.MEREKS);
-  return useSWR<PaginatedResponse<Merek>>(url, fetcher);
+  return useSWR<PaginatedResponse<Merek>>(url, fetcher, {
+    revalidateOnFocus: false,
+    dedupingInterval: 5000,
+    refreshInterval: 30 * 60 * 1000, // Refresh every 30 minutes (static data)
+  });
 };
 
 export const useMerek = (id: string | number) => {
   const url = buildApiUrl(`${API_ENDPOINTS.MEREKS}/${id}`);
-  return useSWR(id ? url : null, fetcher);
+  return useSWR(id ? url : null, fetcher, {
+    revalidateOnFocus: false,
+    dedupingInterval: 5000,
+    refreshInterval: 30 * 60 * 1000, // Refresh every 30 minutes
+  });
 };
 
 export const useKategoris = () => {
   const url = buildApiUrl(API_ENDPOINTS.KATEGORIS);
-  return useSWR<PaginatedResponse<Kategori>>(url, fetcher);
+  return useSWR<PaginatedResponse<Kategori>>(url, fetcher, {
+    revalidateOnFocus: false,
+    dedupingInterval: 5000,
+    refreshInterval: 30 * 60 * 1000, // Refresh every 30 minutes (static data)
+  });
 };
 
 export const useKategori = (id: string | number) => {
   const url = buildApiUrl(`${API_ENDPOINTS.KATEGORIS}/${id}`);
-  return useSWR(id ? url : null, fetcher);
+  return useSWR(id ? url : null, fetcher, {
+    revalidateOnFocus: false,
+    dedupingInterval: 5000,
+    refreshInterval: 30 * 60 * 1000, // Refresh every 30 minutes
+  });
 };
 
 export const useStokMobils = (mobilId?: string | number) => {
   const url = buildApiUrl(
     `${API_ENDPOINTS.STOK_MOBILS}${mobilId ? `?mobil_id=${mobilId}` : ""}`
   );
-  return useSWR(url, fetcher);
+  return useSWR(url, fetcher, {
+    revalidateOnFocus: false,
+    dedupingInterval: 1000,
+    refreshInterval: 2 * 60 * 1000, // Refresh every 2 minutes (dynamic data)
+  });
 };
 
 // ✅ Add specific hook for stock item detail
@@ -151,31 +219,51 @@ export const useFotoMobils = (mobilId?: string | number) => {
   const url = buildApiUrl(
     `${API_ENDPOINTS.FOTO_MOBILS}${mobilId ? `?mobil_id=${mobilId}` : ""}`
   );
-  return useSWR(url, fetcher);
+  return useSWR(url, fetcher, {
+    revalidateOnFocus: false,
+    dedupingInterval: 2000,
+    refreshInterval: 15 * 60 * 1000, // Refresh every 15 minutes
+  });
 };
 
 export const useRiwayatServis = (stokMobilId: string | number) => {
   const url = buildApiUrl(
     `${API_ENDPOINTS.RIWAYAT_SERVIS}?stok_mobil_id=${stokMobilId}`
   );
-  return useSWR(stokMobilId ? url : null, fetcher);
+  return useSWR(stokMobilId ? url : null, fetcher, {
+    revalidateOnFocus: false,
+    dedupingInterval: 500,
+    refreshInterval: 30 * 1000, // Refresh every 30 seconds (critical data)
+  });
 };
 
 export const useJanjiTemus = () => {
   const url = buildApiUrl(API_ENDPOINTS.JANJI_TEMUS);
-  return useSWR(url, fetcher);
+  return useSWR(url, fetcher, {
+    revalidateOnFocus: true, // Revalidate on focus for appointments
+    dedupingInterval: 1000,
+    refreshInterval: 60 * 1000, // Refresh every minute (real-time data)
+  });
 };
 
 export const useVarians = (mobilId?: string | number) => {
   const url = buildApiUrl(
     `${API_ENDPOINTS.VARIANS}${mobilId ? `?mobil_id=${mobilId}` : ""}`
   );
-  return useSWR<PaginatedResponse<Varian>>(url, fetcher);
+  return useSWR<PaginatedResponse<Varian>>(url, fetcher, {
+    revalidateOnFocus: false,
+    dedupingInterval: 5000,
+    refreshInterval: 30 * 60 * 1000, // Refresh every 30 minutes (static data)
+  });
 };
 
 export const useVarian = (id: string | number) => {
   const url = buildApiUrl(`${API_ENDPOINTS.VARIANS}/${id}`);
-  return useSWR(id ? url : null, fetcher);
+  return useSWR(id ? url : null, fetcher, {
+    revalidateOnFocus: false,
+    dedupingInterval: 5000,
+    refreshInterval: 30 * 60 * 1000, // Refresh every 30 minutes
+  });
 };
 
 // Mutation hooks for creating data
@@ -296,7 +384,11 @@ export const useStokMobilsByFilters = (filters?: {
     `${API_ENDPOINTS.STOK_MOBILS}${queryParams ? `?${queryParams}` : ""}`
   );
 
-  return useSWR<PaginatedResponse<StokMobil>>(url, fetcher);
+  return useSWR<PaginatedResponse<StokMobil>>(url, fetcher, {
+    revalidateOnFocus: false,
+    dedupingInterval: 1000,
+    refreshInterval: 2 * 60 * 1000, // Refresh every 2 minutes (dynamic data)
+  });
 };
 
 // Search and filter utilities

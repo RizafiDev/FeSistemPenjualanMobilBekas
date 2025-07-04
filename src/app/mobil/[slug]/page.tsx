@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getCarDetailSEO } from "@/lib/seo";
 import CarDetailPage from "@/components/car/car-detail-page";
-import { API_BASE_URL } from "@/lib/api";
+import { API_BASE_URL, getAuthHeaders } from "@/lib/api";
 
 interface Props {
   params: Promise<{
@@ -20,6 +20,7 @@ async function fetchStockData(stockId: string) {
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
+        ...getAuthHeaders(),
       },
       // Add cache control for better performance
       next: { revalidate: 60 }, // Revalidate every 60 seconds
