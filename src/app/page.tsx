@@ -131,6 +131,7 @@ export default function HomePage() {
                   size="lg"
                   className="h-12 px-8 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-300"
                   asChild
+                  aria-label="Browse all available cars"
                 >
                   <Link href="/mobil">
                     Lihat Semua Mobil
@@ -142,6 +143,7 @@ export default function HomePage() {
                   variant="outline"
                   className="h-12 px-8 border-2 hover:bg-white hover:shadow-lg transition-all duration-300"
                   asChild
+                  aria-label="Get free consultation"
                 >
                   <Link href="/kontak">
                     <Phone className="mr-2 h-5 w-5" />
@@ -235,6 +237,7 @@ export default function HomePage() {
                   size="icon"
                   onClick={scrollLeft}
                   className="h-10 w-10 rounded-full border-2"
+                  aria-label="Scroll Left"
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
@@ -243,6 +246,7 @@ export default function HomePage() {
                   size="icon"
                   onClick={scrollRight}
                   className="h-10 w-10 rounded-full border-2"
+                  aria-label="Scroll Right"
                 >
                   <ChevronRight className="h-4 w-4" />
                 </Button>
@@ -251,6 +255,7 @@ export default function HomePage() {
                 variant="outline"
                 className="h-12 px-6 border-2 hover:shadow-lg transition-all duration-300"
                 asChild
+                aria-label="Lihat Semua Mobil"
               >
                 <Link href="/mobil">
                   Lihat Semua
@@ -290,7 +295,12 @@ export default function HomePage() {
                 Silakan cek kembali nanti atau hubungi kami untuk informasi
                 lebih lanjut.
               </p>
-              <Button className="h-12 px-8" asChild>
+              {/* Empty state button */}
+              <Button
+                className="h-12 px-8"
+                asChild
+                aria-label="Check complete catalog"
+              >
                 <Link href="/mobil">Cek Katalog Lengkap</Link>
               </Button>
             </div>
@@ -434,6 +444,7 @@ export default function HomePage() {
                     size="icon"
                     onClick={scrollBrandLeft}
                     className="h-10 w-10 rounded-full border-2"
+                    aria-label="Scroll brands left"
                   >
                     <ChevronLeft className="h-4 w-4" />
                   </Button>
@@ -442,6 +453,7 @@ export default function HomePage() {
                     size="icon"
                     onClick={scrollBrandRight}
                     className="h-10 w-10 rounded-full border-2"
+                    aria-label="Scroll brands right"
                   >
                     <ChevronRight className="h-4 w-4" />
                   </Button>
@@ -450,6 +462,7 @@ export default function HomePage() {
                   variant="outline"
                   className="h-12 px-6 border-2 hover:shadow-lg transition-all duration-300"
                   asChild
+                  aria-label="View all car brands"
                 >
                   <Link href="/mobil">
                     Lihat Semua Merek
@@ -518,12 +531,14 @@ export default function HomePage() {
               Jangan tunggu lagi! Tim ahli kami siap membantu Anda menemukan
               mobil bekas berkualitas yang sesuai dengan kebutuhan dan budget.
             </p>
+            {/* CTA Section buttons */}
             <div className="flex flex-col sm:flex-row gap-6 justify-center">
               <Button
                 size="lg"
                 variant="secondary"
                 className="h-14 px-10 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300"
                 asChild
+                aria-label="Explore car catalog"
               >
                 <Link href="/mobil">
                   <Car className="mr-3 h-6 w-6" />
@@ -535,6 +550,7 @@ export default function HomePage() {
                 variant="outline"
                 className="h-14 px-10 text-lg font-semibold text-white border-2 border-white hover:bg-white hover:text-blue-700 shadow-xl hover:shadow-2xl transition-all duration-300"
                 asChild
+                aria-label="Contact us for assistance"
               >
                 <Link href="/kontak">
                   <Phone className="mr-3 h-6 w-6" />
