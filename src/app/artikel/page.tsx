@@ -94,22 +94,6 @@ export default function ArticlesPage() {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <div className="flex items-center gap-4">
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-40">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="published">Dipublikasi</SelectItem>
-                  <SelectItem value="draft">Draft</SelectItem>
-                  <SelectItem value="archived">Diarsipkan</SelectItem>
-                </SelectContent>
-              </Select>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Eye className="h-4 w-4" />
-                <span>{filteredArticles.length} artikel</span>
-              </div>
-            </div>
           </div>
         </div>
       </section>
