@@ -490,7 +490,7 @@ export default function HomePage() {
                     <div className="p-1 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:from-blue-100 group-hover:to-blue-200 transition-all duration-300 overflow-hidden">
                       {merek.logo ? (
                         <img
-                          src={`http://127.0.0.1:8000/storage/${merek.logo}`}
+                          src={`https://appsdealer.rizafidev.site/storage/${merek.logo}`}
                           alt={merek.nama}
                           className="w-24 h-24 object-contain"
                           onError={(e) => {
