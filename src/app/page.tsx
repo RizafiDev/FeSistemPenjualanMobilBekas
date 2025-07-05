@@ -192,44 +192,104 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-      {/* Brand Slider Container */}
-      <div className="relative">
-        <div
-          ref={brandSliderRef}
-          className="flex gap-4 overflow-x-auto scrollbar-hide pb-4"
-          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-        >
-          {mereks.map((merek) => (
-            <Link
-              key={merek.id}
-              href={`/mobil?merek=${merek.id}`}
-              className="group block flex-none "
-            >
-              {/* Brand Logo */}
-              <div className="p-1 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:from-blue-100 group-hover:to-blue-200 transition-all duration-300 overflow-hidden">
-                {merek.logo ? (
-                  <img
-                    src={`https://appsdealer.rizafidev.site/storage/${merek.logo}`}
-                    alt={merek.nama}
-                    className="w-24 h-24 object-contain"
-                    onError={(e) => {
-                      // Fallback to Car icon if image fails to load
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = "none";
-                      target.nextElementSibling?.classList.remove("hidden");
-                    }}
-                  />
-                ) : null}
-                <Car
-                  className={`h-8 w-8 text-gray-600 group-hover:text-blue-600 transition-colors duration-300 ${
-                    merek.logo ? "hidden" : ""
-                  }`}
-                />
+      {/* Brands Section */}
+      {mereks.length > 0 && (
+        <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
+          <div className="container mx-auto px-4 lg:px-8">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-12 gap-6">
+              <div className="space-y-4">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-orange-100 text-orange-700 rounded-full text-sm font-medium">
+                  <Car className="h-4 w-4" />
+                  Merek Terpercaya
+                </div>
+                <h2 className="text-3xl lg:text-4xl font-bold text-gray-900">
+                  Merek Populer
+                </h2>
+                <p className="text-lg text-gray-600 max-w-xl">
+                  Temukan mobil dari merek-merek terpercaya pilihan Anda dengan
+                  kualitas terjamin
+                </p>
               </div>
-            </Link>
-          ))}
-        </div>
-      </div>
+
+              {/* Navigation Buttons for Brands */}
+              <div className="flex items-center gap-4">
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={scrollBrandLeft}
+                    className="h-10 w-10 rounded-full border-2"
+                    aria-label="Scroll brands left"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={scrollBrandRight}
+                    className="h-10 w-10 rounded-full border-2"
+                    aria-label="Scroll brands right"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+                <Button
+                  variant="outline"
+                  className="h-12 px-6 border-2 hover:shadow-lg transition-all duration-300"
+                  asChild
+                  aria-label="View all car brands"
+                >
+                  <Link href="/mobil">
+                    Lihat Semua Merek
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
+            </div>
+
+            {/* Brand Slider Container */}
+            <div className="relative">
+              <div
+                ref={brandSliderRef}
+                className="flex gap-4 overflow-x-auto scrollbar-hide pb-4"
+                style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+              >
+                {mereks.map((merek) => (
+                  <Link
+                    key={merek.id}
+                    href={`/mobil?merek=${merek.id}`}
+                    className="group block flex-none "
+                  >
+                    {/* Brand Logo */}
+                    <div className="p-1 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:from-blue-100 group-hover:to-blue-200 transition-all duration-300 overflow-hidden">
+                      {merek.logo ? (
+                        <img
+                          src={`https://appsdealer.rizafidev.site/storage/${merek.logo}`}
+                          alt={merek.nama}
+                          className="w-24 h-24 object-contain"
+                          onError={(e) => {
+                            // Fallback to Car icon if image fails to load
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = "none";
+                            target.nextElementSibling?.classList.remove(
+                              "hidden"
+                            );
+                          }}
+                        />
+                      ) : null}
+                      <Car
+                        className={`h-8 w-8 text-gray-600 group-hover:text-blue-600 transition-colors duration-300 ${
+                          merek.logo ? "hidden" : ""
+                        }`}
+                      />
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
       {/* Search Section */}
       <section className="py-20 bg-white relative overflow-hidden ">
         <div className="absolute inset-0 bg-gradient-to-b from-gray-50/50 to-white"></div>
@@ -456,63 +516,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-      {/* Brands Section */}
-      {mereks.length > 0 && (
-        <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
-          <div className="container mx-auto px-4 lg:px-8">
-            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-12 gap-6">
-              <div className="space-y-4">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-orange-100 text-orange-700 rounded-full text-sm font-medium">
-                  <Car className="h-4 w-4" />
-                  Merek Terpercaya
-                </div>
-                <h2 className="text-3xl lg:text-4xl font-bold text-gray-900">
-                  Merek Populer
-                </h2>
-                <p className="text-lg text-gray-600 max-w-xl">
-                  Temukan mobil dari merek-merek terpercaya pilihan Anda dengan
-                  kualitas terjamin
-                </p>
-              </div>
-
-              {/* Navigation Buttons for Brands */}
-              <div className="flex items-center gap-4">
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={scrollBrandLeft}
-                    className="h-10 w-10 rounded-full border-2"
-                    aria-label="Scroll brands left"
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={scrollBrandRight}
-                    className="h-10 w-10 rounded-full border-2"
-                    aria-label="Scroll brands right"
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </div>
-                <Button
-                  variant="outline"
-                  className="h-12 px-6 border-2 hover:shadow-lg transition-all duration-300"
-                  asChild
-                  aria-label="View all car brands"
-                >
-                  <Link href="/mobil">
-                    Lihat Semua Merek
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* Articles Overview Section */}
       <ArticlesOverview />
