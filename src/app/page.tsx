@@ -192,6 +192,44 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      {/* Brand Slider Container */}
+      <div className="relative">
+        <div
+          ref={brandSliderRef}
+          className="flex gap-4 overflow-x-auto scrollbar-hide pb-4"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        >
+          {mereks.map((merek) => (
+            <Link
+              key={merek.id}
+              href={`/mobil?merek=${merek.id}`}
+              className="group block flex-none "
+            >
+              {/* Brand Logo */}
+              <div className="p-1 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:from-blue-100 group-hover:to-blue-200 transition-all duration-300 overflow-hidden">
+                {merek.logo ? (
+                  <img
+                    src={`https://appsdealer.rizafidev.site/storage/${merek.logo}`}
+                    alt={merek.nama}
+                    className="w-24 h-24 object-contain"
+                    onError={(e) => {
+                      // Fallback to Car icon if image fails to load
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = "none";
+                      target.nextElementSibling?.classList.remove("hidden");
+                    }}
+                  />
+                ) : null}
+                <Car
+                  className={`h-8 w-8 text-gray-600 group-hover:text-blue-600 transition-colors duration-300 ${
+                    merek.logo ? "hidden" : ""
+                  }`}
+                />
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
       {/* Search Section */}
       <section className="py-20 bg-white relative overflow-hidden ">
         <div className="absolute inset-0 bg-gradient-to-b from-gray-50/50 to-white"></div>
@@ -470,47 +508,6 @@ export default function HomePage() {
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
-              </div>
-            </div>
-
-            {/* Brand Slider Container */}
-            <div className="relative">
-              <div
-                ref={brandSliderRef}
-                className="flex gap-4 overflow-x-auto scrollbar-hide pb-4"
-                style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-              >
-                {mereks.map((merek) => (
-                  <Link
-                    key={merek.id}
-                    href={`/mobil?merek=${merek.id}`}
-                    className="group block flex-none "
-                  >
-                    {/* Brand Logo */}
-                    <div className="p-1 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:from-blue-100 group-hover:to-blue-200 transition-all duration-300 overflow-hidden">
-                      {merek.logo ? (
-                        <img
-                          src={`https://appsdealer.rizafidev.site/storage/${merek.logo}`}
-                          alt={merek.nama}
-                          className="w-24 h-24 object-contain"
-                          onError={(e) => {
-                            // Fallback to Car icon if image fails to load
-                            const target = e.target as HTMLImageElement;
-                            target.style.display = "none";
-                            target.nextElementSibling?.classList.remove(
-                              "hidden"
-                            );
-                          }}
-                        />
-                      ) : null}
-                      <Car
-                        className={`h-8 w-8 text-gray-600 group-hover:text-blue-600 transition-colors duration-300 ${
-                          merek.logo ? "hidden" : ""
-                        }`}
-                      />
-                    </div>
-                  </Link>
-                ))}
               </div>
             </div>
           </div>
