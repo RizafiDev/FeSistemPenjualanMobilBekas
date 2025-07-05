@@ -20,6 +20,7 @@ export default function Header() {
   const mainNavItems = [
     { href: "/", label: "Beranda" },
     { href: "/mobil", label: "Katalog Mobil" },
+    { href: "/artikel", label: "Artikel" },
     { href: "/kontak", label: "Kontak" },
   ];
 
@@ -52,6 +53,12 @@ export default function Header() {
             className="relative text-sm font-medium text-gray-700 transition-all duration-300 hover:text-blue-600 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-gradient-to-r after:from-blue-600 after:to-purple-600 after:transition-all after:duration-300 hover:after:w-full"
           >
             Katalog
+          </Link>
+          <Link
+            href="/artikel"
+            className="relative text-sm font-medium text-gray-700 transition-all duration-300 hover:text-blue-600 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-gradient-to-r after:from-blue-600 after:to-purple-600 after:transition-all after:duration-300 hover:after:w-full"
+          >
+            Artikel
           </Link>
           <Link
             href="/kontak"

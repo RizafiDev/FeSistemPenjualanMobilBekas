@@ -240,3 +240,27 @@ export interface ContactForm {
   subjek: string;
   pesan: string;
 }
+
+// Article interface
+export interface Article extends BaseModel {
+  title: string;
+  slug: string;
+  content: string;
+  excerpt?: string;
+  featured_image?: string;
+  featured_image_url?: string;
+  status: "draft" | "published" | "archived";
+  published_at?: string;
+  meta_title?: string;
+  meta_description?: string;
+}
+
+// Notifications
+export interface Notification {
+  id: number;
+  type: "success" | "error" | "warning" | "info";
+  title: string;
+  message: string;
+  timestamp: Date;
+  read: boolean;
+}

@@ -19,6 +19,7 @@ import type {
   PaginatedResponse,
   CarSearchFilters,
   Varian,
+  Article,
 } from "./types";
 import { createCachedFetcher, invalidateCache } from "./swr-config";
 import {
@@ -494,7 +495,56 @@ export const getSortOptions = () => [
   { value: SORT_OPTIONS.YEAR_NEWEST, label: "Tahun Terbaru" },
   { value: SORT_OPTIONS.YEAR_OLDEST, label: "Tahun Terlama" },
 ];
+
 function transformApiResponse(value: unknown): unknown {
   // Just return the value as-is since our API already returns properly formatted data
   return value;
 }
+
+// Articles hooks
+export const useArticles = (params?: { page?: number; status?: string }) => {
+  const queryParams = new URLSearchParams();
+  if (params?.page) queryParams.append("page", params.page.toString());
+  if (params?.status) queryParams.append("status", params.status);
+
+  const url = buildApiUrl(
+    `${API_ENDPOINTS.ARTICLES}${
+      queryParams.toString() ? `?${queryParams.toString()}` : ""
+    }`
+  );
+
+  return useSWR<PaginatedResponse<Article>>(url, fetcher, {
+    keepPreviousData: true,
+    revalidateOnFocus: false,
+    dedupingInterval: 5000,
+  });
+};
+
+export const useArticle = (id: string | number) => {
+  const url = buildApiUrl(`${API_ENDPOINTS.ARTICLES}/${id}`);
+
+  return useSWR<Article>(url, fetcher, {
+    revalidateOnFocus: false,
+    dedupingInterval: 30000,
+  });
+};
+
+export const useArticleBySlug = (slug: string) => {
+  const url = buildApiUrl(`${API_ENDPOINTS.ARTICLES}?slug=${slug}`);
+
+  return useSWR<PaginatedResponse<Article>>(url, fetcher, {
+    revalidateOnFocus: false,
+    dedupingInterval: 30000,
+  });
+};
+
+export const useFeaturedArticles = (limit: number = 3) => {
+  const url = buildApiUrl(
+    `${API_ENDPOINTS.ARTICLES}?status=published&limit=${limit}`
+  );
+
+  return useSWR<PaginatedResponse<Article>>(url, fetcher, {
+    revalidateOnFocus: false,
+    dedupingInterval: 30000,
+  });
+};

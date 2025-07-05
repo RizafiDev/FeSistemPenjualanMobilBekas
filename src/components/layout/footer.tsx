@@ -24,6 +24,7 @@ export default function Footer() {
     ],
     layanan: [
       { href: "/mobil", label: "Katalog Mobil" },
+      { href: "/artikel", label: "Artikel" },
       { href: "/pembiayaan", label: "Pembiayaan" },
       { href: "/tukar-tambah", label: "Tukar Tambah" },
     ],

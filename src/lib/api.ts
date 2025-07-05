@@ -10,6 +10,7 @@ import type { Mobil, FotoMobil } from "./types";
 
 // API Endpoints
 export const API_ENDPOINTS = {
+  ARTICLES: "/articles",
   FOTO_MOBILS: "/foto-mobils",
   JANJI_TEMUS: "/janji-temus",
   KATEGORIS: "/kategoris",
@@ -49,17 +50,46 @@ export const getImageUrl = (path: string): string => {
     return path;
   }
 
-  // If starts with /, return as is (already relative to domain)
-  if (path.startsWith("/")) {
-    return path;
-  }
-
   // For storage paths, prefix with storage URL
   const STORAGE_BASE_URL =
     process.env.NEXT_PUBLIC_STORAGE_URL || "http://127.0.0.1:8000/storage";
-  const fullUrl = `${STORAGE_BASE_URL}/${path}`;
 
+  // If starts with /storage, remove it since STORAGE_BASE_URL already includes it
+  if (path.startsWith("/storage/")) {
+    return `${STORAGE_BASE_URL.replace("/storage", "")}${path}`;
+  }
+
+  // If starts with /, return as is (already relative to domain)
+  if (path.startsWith("/")) {
+    return `${STORAGE_BASE_URL}${path}`;
+  }
+
+  // Otherwise, add it to the storage URL
+  const fullUrl = `${STORAGE_BASE_URL}/${path}`;
   return fullUrl;
+};
+
+// Article image URL helper
+export const getArticleImageUrl = (path: string): string => {
+  if (!path) return "/images/article-placeholder.jpg";
+
+  // If already a full URL, return as is
+  if (path.startsWith("http://") || path.startsWith("https://")) {
+    return path;
+  }
+
+  // For article images, use the base URL without storage prefix
+  const BASE_URL =
+    process.env.NEXT_PUBLIC_API_BASE_URL?.replace("/api/admin", "") ||
+    "http://127.0.0.1:8000";
+
+  // If starts with /, use it as is with base URL
+  if (path.startsWith("/")) {
+    return `${BASE_URL}${path}`;
+  }
+
+  // Otherwise, add it to the storage URL
+  return `${BASE_URL}/storage/${path}`;
 };
 
 // Data transformation utilities to handle API response differences

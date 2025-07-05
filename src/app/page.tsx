@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import CarSearch from "@/components/car/car-search";
 import StockCarCard from "@/components/car/stock-car-card";
+import ArticlesOverview from "@/components/car/articles-overview";
 import { useCatalog, useMereks } from "@/lib/hooks";
 import type { StokMobil, Merek } from "@/lib/types";
 import {
@@ -515,6 +516,10 @@ export default function HomePage() {
           </div>
         </section>
       )}
+
+      {/* Articles Overview Section */}
+      <ArticlesOverview />
+
       {/* CTA Section */}
       <section className="py-20 bg-gradient-to-br from-blue-600 via-blue-700 to-purple-700 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent"></div>
