@@ -5,15 +5,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Calendar,
-  Fuel,
-  Settings,
   Eye,
-  Car,
   Palette,
   Gauge,
 } from "lucide-react";
 import { formatPrice, getCarSlug } from "@/lib/hooks";
-import { getImageUrl } from "@/lib/api";
 import type { StokMobil } from "@/lib/types";
 
 interface StockCarCardProps {
@@ -26,14 +22,9 @@ export default function StockCarCard({
   className,
 }: StockCarCardProps) {
   const car = stockCar.mobil;
-  const varian = stockCar.varian;
   if (!car) {
     return null; // Skip if no car data
   }
-
-  const primaryPhoto =
-    car.foto_mobils?.find((foto: any) => foto.is_primary) ||
-    car.foto_mobils?.[0];
 
   const carSlug = getCarSlug(car);
   return (
