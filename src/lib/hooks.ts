@@ -20,6 +20,7 @@ import type {
   CarSearchFilters,
   Varian,
   Article,
+  Homepage,
 } from "./types";
 import { createCachedFetcher, invalidateCache } from "./swr-config";
 import {
@@ -546,5 +547,15 @@ export const useFeaturedArticles = (limit: number = 3) => {
   return useSWR<PaginatedResponse<Article>>(url, fetcher, {
     revalidateOnFocus: false,
     dedupingInterval: 30000,
+  });
+};
+
+// Homepage hook
+export const useHomepage = () => {
+  const url = buildApiUrl(API_ENDPOINTS.HOMEPAGES);
+  return useSWR<PaginatedResponse<Homepage>>(url, fetcher, {
+    revalidateOnFocus: false,
+    dedupingInterval: 30000,
+    refreshInterval: 60 * 60 * 1000, // Refresh every hour
   });
 };

@@ -12,6 +12,7 @@ import type { Mobil, FotoMobil } from "./types";
 export const API_ENDPOINTS = {
   ARTICLES: "/articles",
   FOTO_MOBILS: "/foto-mobils",
+  HOMEPAGES: "/homepages",
   JANJI_TEMUS: "/janji-temus",
   KATEGORIS: "/kategoris",
   MEREKS: "/mereks",

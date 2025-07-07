@@ -255,6 +255,13 @@ export interface Article extends BaseModel {
   meta_description?: string;
 }
 
+// Homepage interface
+export interface Homepage extends BaseModel {
+  pelanggan_puas: string;
+  rating_puas: string;
+  foto_homepage: string[];
+}
+
 // Notifications
 export interface Notification {
   id: number;
